@@ -1,0 +1,18 @@
+numbers = {10:'ten',20:'twenty',30:'thirty'}
+obj = numbers.items()
+print("items in this dictonary",obj)
+print("type of obj:",type(obj))
+numbers.update({40:'forty'})
+print(numbers)
+print(obj)
+
+keys = numbers.keys()
+print("keys in this dictionary",keys)
+numbers.update({50:'fifty'})
+print("Updated keys : ",keys)
+print("keys datatypes",type(keys))
+values = numbers.values()
+print("values in this dictionay",values)
+numbers.update({60:'sixty'})
+print("Updated values",values)
+print('values data type',type(values))
