@@ -1,0 +1,254 @@
+{% extends layout_path %}
+{% load i18n %}
+{% block title %}Microtrainings in {{ category.name }}{% endblock title %}
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-bs5/datatables.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/select2/select2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/@form-validation/umd/styles/index.min.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/swiper/swiper.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/shepherd/shepherd.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/moment/moment.js' %}"></script>
+<script src="{% static 'vendor/libs/datatables-bs5/datatables-bootstrap5.js' %}"></script>
+<script src="{% static 'vendor/libs/select2/select2.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/umd/bundle/popular.min.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/umd/plugin-bootstrap5/index.min.js' %}"></script>
+<script src="{% static 'vendor/libs/cleavejs/cleave.js' %}"></script>
+<script src="{% static 'vendor/libs/cleavejs/cleave-phone.js' %}"></script>
+<script src="{% static 'vendor/libs/jquery/jquery.js' %}"></script>
+<script src="{% static 'vendor/libs/swiper/swiper.js' %}"></script>
+<script src="{% static 'vendor/libs/shepherd/shepherd.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/pages/front-page-landing.css' %}">
+<style>
+  .modal .carousel-indicators {
+    list-style: none;
+  }
+  .modal .carousel-indicators li::marker {
+    content: none;
+  }
+</style>
+{% endblock page_css %}
+
+{% block page_js %}
+{{ block.super }}
+<script>
+  $(document).ready(function() {
+    $('[id^="quizForm"]').on('submit', function(e) {
+      e.preventDefault();
+      var correctAnswerIndex = $(this).data('correct-answer-index');
+      var selectedAnswer = $(this).find('input[name="answer"]:checked').val();
+      var feedback = $(this).find('.feedback');
+
+      // Entferne vorherige Feedback-Stile
+      $(this).find('input[name="answer"]').each(function() {
+        $(this).closest('.form-check').removeClass('form-check-success form-check-danger');
+        $(this).next('label').removeClass('text-success text-danger');
+      });
+
+      feedback.hide();
+
+      if (selectedAnswer === undefined) {
+        feedback.addClass('alert-danger').text('Bitte wähle eine Antwort aus.').show();
+      } else {
+        // Deaktiviere alle Radio-Buttons
+        $(this).find('input[name="answer"]').prop('disabled', true);
+
+        if (selectedAnswer == correctAnswerIndex) {
+          $('#answer' + selectedAnswer).closest('.form-check').addClass('form-check-success');
+          $('#answer' + selectedAnswer).next('label').addClass('text-success');
+          feedback.removeClass('alert-danger').addClass('alert-success').text('Super gemacht, das war Richtig!').show();
+        } else {
+          $('#answer' + selectedAnswer).closest('.form-check').addClass('form-check-danger');
+          $('#answer' + selectedAnswer).next('label').addClass('text-danger');
+          $('#answer' + correctAnswerIndex).closest('.form-check').addClass('form-check-success');
+          $('#answer' + correctAnswerIndex).next('label').addClass('text-success');
+          feedback.removeClass('alert-success').addClass('alert-danger').text('Das war leider Falsch.').show();
+        }
+
+        // Deaktiviere den Submit-Button
+        $(this).find('button[type="submit"]').prop('disabled', true);
+      }
+    });
+
+    $('[id^="modalCarouselControls"]').on('slide.bs.carousel', function (e) {
+      var $nextControl = $(this).find('.carousel-control-next');
+      var $prevControl = $(this).find('.carousel-control-prev');
+      var $carouselItems = $(this).find('.carousel-item');
+      var totalItems = $carouselItems.length;
+      var currentIndex = $carouselItems.index($carouselItems.filter('.active'));
+
+      // Deaktivieren der 'Next' Schaltfläche, wenn die letzte Folie erreicht ist
+      if (e.to == totalItems - 1) {
+        $nextControl.addClass('d-none');
+      } else {
+        $nextControl.removeClass('d-none');
+      }
+
+      // Deaktivieren der 'Prev' Schaltfläche, wenn die erste Folie erreicht ist
+      if (e.to == 0) {
+        $prevControl.addClass('d-none');
+      } else {
+        $prevControl.removeClass('d-none');
+      }
+    });
+  });
+</script>
+<script>
+  $(document).ready(function() {
+    $('input.switch-input').change(function() {
+      var isChecked = $(this).is(':checked');
+      var id = $(this).data('id');
+      var url = "{% url 'microtraining_list' category.id %}";  // Passe diese URL an, falls nötig
+
+      $.ajax({
+        url: url,
+        type: 'POST',
+        data: {
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+          is_active: isChecked,
+          training_id: id
+        },
+        success: function(response) {
+          console.log('Success:', response);
+        },
+        error: function(response) {
+          console.log('Error:', response);
+        }
+      });
+    });
+  });
+  </script>
+{% endblock page_js %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header border-bottom">
+    <h5 class="card-title mb-3">Microtrainings in {{ category.name }}</h5>
+  </div>
+  <div class="table-responsive mb-3">
+      <table class="table trainingsOverviewTable border-top">
+          <thead>
+              <tr>
+                  <th>Title</th>
+                  <th>Description</th>
+                  <th>Actions</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for training, is_active in trainings_with_activation %}
+              <tr>
+                  <td>{{ training.translations.first.title }}</td>
+                  <td>{{ training.translations.first.description }}</td>
+                  <td>
+                      <label class="switch">
+                        <input type="checkbox" class="switch-input" data-id="{{ training.id }}" {% if is_active %}checked{% endif %} />
+                        <span class="switch-toggle-slider">
+                          <span class="switch-on"></span>
+                          <span class="switch-off"></span>
+                        </span>
+                        <span class="switch-label"></span>
+                      </label>
+                      <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#trainingPreviewModal{{ training.id }}">Preview</a>
+
+                      <!-- Modal -->
+                      <div class="modal-onboarding modal fade animate__animated" id="trainingPreviewModal{{ training.id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                          <div class="modal-dialog modal-dialog-centered" role="document">
+                              <div class="modal-content text-center">
+                                  <div class="modal-header border-0">
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                    </button>
+                                  </div>
+                                  <div id="modalCarouselControls{{ training.id }}" class="carousel slide pb-4 mb-2" data-bs-interval="false">
+                                    <ol class="carousel-indicators">
+                                      <li data-bs-target="#modalCarouselControls{{ training.id }}" data-bs-slide-to="0" class="active"></li>
+                                      <li data-bs-target="#modalCarouselControls{{ training.id }}" data-bs-slide-to="1"></li>
+                                      <li data-bs-target="#modalCarouselControls{{ training.id }}" data-bs-slide-to="2"></li>
+                                    </ol>
+                                    <div class="carousel-inner">
+                                      <div class="carousel-item active">
+                                        <div class="onboarding-media">
+                                          <div class="mx-2">
+
+                                          </div>
+                                        </div>
+                                        <div class="onboarding-content">
+                                          <h4 class="onboarding-title text-body">{{ training.translations.first.title }}</h4>
+                                          <div class="onboarding-info">{{ training.translations.first.description }}</div>
+                                        </div>
+                                      </div>
+                                      <div class="carousel-item">
+                                        <div class="onboarding-media">
+                                          <div class="mx-2">
+
+                                          </div>
+                                        </div>
+                                        <div class="onboarding-content">
+                                          <h4 class="onboarding-title text-body">{{ training.translations.first.title }}</h4>
+                                          <div class="onboarding-info">{{ training.translations.first.content }}</div>
+                                        </div>
+                                      </div>
+                                      <div class="carousel-item">
+                                        <div class="onboarding-media">
+                                          <div class="mx-2">
+
+                                          </div>
+                                        </div>
+                                        <div class="onboarding-content">
+                                          <h4 class="onboarding-title text-body">{{ training.translations.first.title }}</h4>
+                                          <div class="onboarding-info">{{ training.translations.first.question_text }}</div>
+                                          <form id="quizForm{{ training.id }}" data-correct-answer-index="{{ training.translations.first.correct_answer_index }}">
+                                            <div id="feedback{{ training.id }}" class="alert feedback" role="alert" style="display: none;"></div>
+                                            <div class="mb-3 form-check">
+                                              <input class="form-check-input" type="radio" name="answer" id="answer1{{ training.id }}" value="1">
+                                              <label class="form-check-label" for="answer1{{ training.id }}">
+                                                {{ training.translations.first.answer1 }}
+                                              </label>
+                                            </div>
+                                            <div class="mb-3 form-check">
+                                              <input class="form-check-input" type="radio" name="answer" id="answer2{{ training.id }}" value="2">
+                                              <label class="form-check-label" for="answer2{{ training.id }}">
+                                                {{ training.translations.first.answer2 }}
+                                              </label>
+                                            </div>
+                                            <div class="mb-3 form-check">
+                                              <input class="form-check-input" type="radio" name="answer" id="answer3{{ training.id }}" value="3">
+                                              <label class="form-check-label" for="answer3{{ training.id }}">
+                                                {{ training.translations.first.answer3 }}
+                                              </label>
+                                            </div>
+                                            <div class="text-center">
+                                              <button type="submit" class="btn btn-primary">Antwort einreichen</button>
+                                            </div>
+                                          </form>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <a class="carousel-control-prev d-none" href="#modalCarouselControls{{ training.id }}" role="button" data-bs-slide="prev">
+                                      <i class="ti ti-chevrons-left me-2"></i><span>Previous</span>
+                                    </a>
+                                    <a class="carousel-control-next" href="#modalCarouselControls{{ training.id }}" role="button" data-bs-slide="next">
+                                      <span>Next</span><i class="ti ti-chevrons-right ms-2"></i>
+                                    </a>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      <!-- End Modal -->
+                  </td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
+</div>
+{% endblock %}

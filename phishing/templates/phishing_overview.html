@@ -1,0 +1,37 @@
+{% extends layout_path %} {% load i18n %} {% block title %}PHISHING{% endblock title %} {% block content %}
+<h4 class="py-3 mb-4">{% translate "Phishing Templates Overview" %}</h4>
+
+<!-- Phishing Templates List Table -->
+{% load custom_filters %}
+<div class="card">
+  <div class="card-datatable table-responsive">
+    <table class="invoice-list-table table border-top">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Name</th>
+          <th>Languages</th>
+          <th>Category</th>
+          <th>Difficult Level</th>
+          <th class="text-truncate">Created At</th>
+          <th class="cell-fit">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for template in Phishingtemplates %}
+        <tr>
+            <td>
+            <td>{{ template.name }}</td>
+            <td>{{ template.languages|join:", " }}</td>
+            <td>{{ template.category }}</td>
+            <td>{{ template.difficulty_level }}</td>
+            <td>{{ template.created_at }}</td>
+            <td><a href="{% url 'phishing-preview' template.id %}"><i class="ti ti-eye ti-md"></i></a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends layout_path %}
+{% load i18n %}
+{% block title %}Microtraining Categories{% endblock title %}
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-bs5/datatables.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/select2/select2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/@form-validation/umd/styles/index.min.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/moment/moment.js' %}"></script>
+<script src="{% static 'vendor/libs/datatables-bs5/datatables-bootstrap5.js' %}"></script>
+<script src="{% static 'vendor/libs/select2/select2.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/umd/bundle/popular.min.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/umd/plugin-bootstrap5/index.min.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/umd/plugin-auto-focus/index.min.js' %}"></script>
+<script src="{% static 'vendor/libs/cleavejs/cleave.js' %}"></script>
+<script src="{% static 'vendor/libs/cleavejs/cleave-phone.js' %}"></script>
+<script src="{% static 'vendor/libs/jquery/jquery.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_js %}
+{{ block.super }}
+<script>
+$(document).ready(function() {
+  $('input.switch-input').change(function() {
+    var isChecked = $(this).is(':checked');
+    var id = $(this).data('id');
+    var url = "{% url 'microtraining_category_list' %}";  // Passe diese URL an, falls nötig
+
+    $.ajax({
+      url: url,
+      type: 'POST',
+      data: {
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+        is_active: isChecked,
+        category_id: id
+      },
+      success: function(response) {
+        console.log('Success:', response);
+      },
+      error: function(response) {
+        console.log('Error:', response);
+      }
+    });
+  });
+});
+</script>
+{% endblock page_js %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header header-elements border-bottom">
+    <h5 class="card-title mb-3">Training Packages</h5>
+    <p class="card-text">Blabliblablö</p>
+    <div class="nav-tabs nav-align-top">
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-published" aria-controls="navs-published" aria-selected="true"><span class="d-none d-sm-block"><i class="tf-icons ti ti-send ti-sm me-1_5"></i> Published <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-label-primary ms-1_5 pt-50">3</span></span><i class="ti ti-send ti-sm d-sm-none"></i></button>
+        </li>
+        <li class="nav-item">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-draft" aria-controls="navs-draft" aria-selected="false"><span class="d-none d-sm-block"><i class="tf-icons ti ti-notes ti-sm me-1_5"></i> Draft <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-label-primary ms-1_5 pt-50">5</span></span><i class="ti ti-notes ti-sm d-sm-none"></i></button>
+        </li>
+        <li class="nav-item">
+          <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-archive" aria-controls="navs-archive" aria-selected="false"><span class="d-none d-sm-block"><i class="tf-icons ti ti-archive ti-sm me-1_5"></i> Archived <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-label-primary ms-1_5 pt-50">77</span></span><i class="ti ti-archive ti-sm d-sm-none"></i></button>
+        </li>
+      </ul>
+    </div>
+    <div class="card-header-elements ms-auto">
+      <a href="#" class="btn btn-primary me-2" role="button"><span class="tf-icons ti-xs ti ti-plus me-2"></span> Add package</a>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="tab-content p-0">
+      <div class="tab-pane fade show active" id="navs-published" role="tabpanel">
+        <div class="table-responsive mb-3">
+            <table class="table categoriesOverviewTable border-top">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Active</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category, is_active in categories_with_activation %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'microtraining_list' category.id %}" class="text-body">
+                                {{ category.name }}
+                            </a>
+                        </td>
+                        <td>
+                            <label class="switch">
+                              <input type="checkbox" class="switch-input" data-id="{{ category.id }}" {% if is_active %}checked{% endif %} />
+                              <span class="switch-toggle-slider">
+                                <span class="switch-on"></span>
+                                <span class="switch-off"></span>
+                              </span>
+                              <span class="switch-label"></span>
+                            </label>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="navs-draft" role="tabpanel">
+        <p>
+          Oat cake chupa chups dragée donut toffee. Sweet cotton candy jelly beans macaroon gummies cupcake gummi
+          bears
+          cake chocolate.
+        </p>
+        <p class="mb-0">
+          Cake chocolate bar cotton candy apple pie tootsie roll ice cream apple pie brownie cake. Sweet roll icing
+          sesame snaps caramels danish toffee. Brownie biscuit dessert dessert. Pudding jelly jelly-o tart brownie
+          jelly.
+        </p>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="navs-archive" role="tabpanel">
+      <p>
+        blabliblablo
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

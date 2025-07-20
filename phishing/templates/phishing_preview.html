@@ -1,0 +1,52 @@
+{% extends layout_path %}
+
+{% load i18n %}
+
+{% block page_js %}
+<script>
+  function resizeIframe(iframe) {
+    iframe.style.height = iframe.contentWindow.document.body.scrollHeight + 'px';
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    var iframe = document.getElementById('templateContent');
+    iframe.contentWindow.document.open();
+    iframe.contentWindow.document.write(`{{ Phishingtemplate.content|escapejs }}`);
+    iframe.contentWindow.document.close();
+
+    // Initial resize
+    resizeIframe(iframe);
+  });
+</script>
+{% endblock page_js %}
+
+{% block title %}{% translate "Phishing Template Preview" %}{% endblock title %}
+
+{% block content %}
+
+<h4 class="py-3 mb-4">{% translate "Phishing Template Preview" %}</h4>
+
+<div class="phishing-template-preview">
+  <p><strong>{% translate "Name" %}:</strong> {{ Phishingtemplate.name }}</p>
+  <p><strong>{% translate "Languages" %}:</strong>
+    {% for language in Phishingtemplate.languages %}
+      {{ language }}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+  </p>
+  <p><strong>{% translate "Category" %}:</strong> {{ Phishingtemplate.category }}</p>
+  <p><strong>{% translate "Difficulty Level" %}:</strong> {{ Phishingtemplate.difficulty_level }}</p>
+  <p><strong>{% translate "Created At" %}:</strong> {{ Phishingtemplate.created_at|date:"Y-m-d H:i" }}</p>
+  <p><strong>{% translate "Updated At" %}:</strong> {{ Phishingtemplate.updated_at|date:"Y-m-d H:i" }}</p>
+  <p><strong>{% translate "Sending Email" %}:</strong> {{ Phishingtemplate.sending_email }}</p>
+  <p><strong>{% translate "Sending Name" %}:</strong> {{ Phishingtemplate.sending_name }}</p>
+  <p><strong>{% translate "Sending Subject" %}:</strong> {{ Phishingtemplate.sending_subject }}</p>
+  <p><strong>{% translate "Content" %}:</strong></p>
+  <p>{{ Phishingtemplate.content }}</p>
+  <p><strong>{% translate "Indicators of Compromise" %}:</strong></p>
+  <div class="phishing-template-ioc">
+    {{ Phishingtemplate.indicators_of_compromise|linebreaks }}
+  </div>
+</div>
+
+<a href="{% url 'phishing-overview' %}">Back to Overview</a>
+{% endblock %}
