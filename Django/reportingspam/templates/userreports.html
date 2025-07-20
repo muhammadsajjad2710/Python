@@ -1,0 +1,100 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}E-Mail Reporting - Apps{% endblock %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/bootstrap-maxlength/bootstrap-maxlength.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/jquery/jquery.js' %}"></script>
+<script src="{% static 'vendor/libs/bootstrap-maxlength/bootstrap-maxlength.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/pages/app-chat.css' %}" />
+{% endblock page_css %}
+
+{% block page_js %}
+{{ block.super }}
+<script src="{% static 'js/app-chat.js' %}"></script>
+<script>
+  $(document).ready(function() {
+    $('.chat-contact-list-item').click(function(e) {
+        e.preventDefault();
+        var emailId = $(this).data('id');  // Erhalte die ID aus dem data-id Attribut des geklickten Elements
+
+        // Führe die AJAX-Anfrage durch
+        $.ajax({
+            url: '/emails/data/' + emailId + '/',
+            type: 'get',
+            dataType: 'json',
+            success: function(data) {
+                // Erstelle den HTML-Content für die Anzeige
+                var content = `
+                    <h4>${data.subject}</h4>
+                    <p><strong>From:</strong> ${data.sender}</p>
+                    <p><strong>Mail Content:</strong> ${data.content}</p>
+                    <p><strong>Mail Header:</strong> ${data.header}</p>
+                    <p><strong>Links:</strong> ${data.links}</p>
+                    <p><strong>Sender IP:</strong> ${data.sender_ip}</p>
+                    <p><strong>Reported at:</strong> ${data.reported_at}</p>
+                `;
+                $('.email-preview').html(content);  // Aktualisiere den Preview-Bereich mit neuen Daten
+            },
+            error: function(xhr, status, error) {
+                $('.email-preview').html('<p>Error loading email details.</p>');  // Zeige Fehlermeldung, wenn etwas schief geht
+            }
+        });
+    });
+});
+</script>
+{% endblock page_js %}
+
+{% block content %}
+<div class="app-chat card overflow-hidden">
+  <div class="row g-0">
+    <!-- Sidebar Left für E-Mail-Listen -->
+    <div class="col app-chat-contacts app-sidebar flex-grow-0 overflow-hidden border-end" id="app-chat-contacts">
+      <div class="sidebar-body">
+        <!-- Inhalt hier, basierend auf gemeldeten E-Mails, statische Inhalte entfernt für dynamische Anzeige -->
+        <ul class="list-unstyled chat-contact-list" id="report-list">
+          {% for report in reports %}
+          <li class="chat-contact-list-item" data-id="{{ report.id }}">
+            <a class="d-flex align-items-center">
+              <div class="chat-contact-info flex-grow-1 ms-2">
+                <h6 class="chat-contact-name text-truncate m-0">{{ report.subject }}</h6>
+                <p class="chat-contact-status text-muted text-truncate mb-0">{{ report.sender }}</p>
+              </div>
+              <small class="text-muted mb-auto">{{ report.reported_at|date:"SHORT_DATE_FORMAT" }}</small>
+            </a>
+          </li>
+          {% empty %}
+          <li class="chat-contact-list-item">
+            <h6 class="text-muted mb-0">Keine Meldungen gefunden</h6>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <!-- E-Mail Preview Bereich -->
+    <div class="col app-chat-history bg-body">
+      <div class="chat-history-wrapper">
+        <div class="chat-history-body bg-body">
+          <!-- E-Mail-Inhalt sicher anzeigen -->
+          <div class="email-preview">
+            Preview here soon  <!-- Benutzt eine benutzerdefinierte Template-Tag-Funktion -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
