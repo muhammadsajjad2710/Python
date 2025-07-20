@@ -1,0 +1,178 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Microtraining{% endblock %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/nouislider/nouislider.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/swiper/swiper.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/shepherd/shepherd.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/jquery/jquery.js' %}"></script>
+<script src="{% static 'vendor/libs/nouislider/nouislider.js' %}"></script>
+<script src="{% static 'vendor/libs/swiper/swiper.js' %}"></script>
+<script src="{% static 'vendor/libs/shepherd/shepherd.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static  'vendor/css/pages/front-page-landing.css' %}">
+{% endblock page_css %}
+
+{% block page_js %}
+{{ block.super }}
+<script src="{% static 'js/front-page-landing.js' %}"></script>
+<script>
+  document.getElementById('templateContent').contentWindow.document.open();
+  document.getElementById('templateContent').contentWindow.document.write(`{{ phishing_email.content|escapejs }}`);
+  document.getElementById('templateContent').contentWindow.document.close();
+
+  document.getElementById('phishingModal').addEventListener('shown.bs.modal', function () {
+    var iframe = document.getElementById('templateContentModal');
+    iframe.contentWindow.document.open();
+    iframe.contentWindow.document.write(`{{ Phishingtemplate.content|escapejs }}`);
+    iframe.contentWindow.document.close();
+    iframe.style.height = iframe.contentDocument.body.scrollHeight + 'px';
+});
+</script>
+<script>
+  function setupTour(tour) {
+      const backBtnClass = 'btn btn-sm btn-label-secondary md-btn-flat',
+          nextBtnClass = 'btn btn-sm btn-primary btn-next';
+
+      tour.addStep({
+          title: 'Phishing E-Mail Betreff',
+          text: 'Achte auf ungewöhnliche oder dringende Betreffzeilen, die zum Handeln auffordern.',
+          attachTo: { element: '#phishing-email p:nth-child(1)', on: 'bottom' },
+          buttons: [
+              {
+                  text: 'Weiter',
+                  classes: nextBtnClass,
+                  action: tour.next
+              }
+          ]
+      });
+      tour.addStep({
+          title: 'Phishing E-Mail Absender',
+          text: 'Überprüfe die Absenderadresse auf ungewöhnliche oder gefälschte Domains.',
+          attachTo: { element: '#phishing-email p:nth-child(2)', on: 'bottom' },
+          buttons: [
+              {
+                  text: 'Zurück',
+                  classes: backBtnClass,
+                  action: tour.back
+              },
+              {
+                  text: 'Weiter',
+                  classes: nextBtnClass,
+                  action: tour.next
+              }
+          ]
+      });
+      tour.addStep({
+          title: 'Phishing E-Mail Inhalt',
+          text: 'Sei vorsichtig bei Links oder Anhängen in der E-Mail. Sie könnten schädlich sein.',
+          attachTo: { element: '#phishing-email p:nth-child(3)', on: 'bottom' },
+          buttons: [
+              {
+                  text: 'Zurück',
+                  classes: backBtnClass,
+                  action: tour.back
+              },
+              {
+                  text: 'Fertig',
+                  classes: nextBtnClass,
+                  action: tour.cancel
+              }
+          ]
+      });
+
+      return tour;
+  }
+
+  $(document).ready(function() {
+    $('#start-training').on('click', function() {
+        $('#phishingModal').modal('show');
+
+        $('#phishingModal').on('shown.bs.modal', function () {
+            const tourVar = new Shepherd.Tour({
+                defaultStepOptions: {
+                    scrollTo: false,
+                    cancelIcon: {
+                        enabled: false
+                    }
+                },
+                useModalOverlay: true
+            });
+
+            setupTour(tourVar).start();
+        });
+    });
+  });
+</script>
+{% endblock page_js %}
+
+
+{% block content %}
+<div data-bs-spy="scroll" class="scrollspy-example">
+  <!-- stats: Start -->
+  <section id="landingFunFacts" class="section-py landing-fun-facts">
+    <div class="container">
+      <div class="row gy-2 pt-lg-3">
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="text-center">
+                <h4 class="mb-1">Woohooo! This was Just a Simulation!</h4>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="text-center">
+                {% if gif_url %}
+                    <img src="{{ gif_url }}" alt="Success GIF">
+                {% else %}
+                    <p>Kein GIF verfügbar.</p>
+                {% endif %}
+                <br><br><br>
+                <h4>+2 <span class="tf-icons ti-lg ti ti-shield me-1"></span></h4>
+                <br><br><br>
+                <button type="button" class="btn btn-xl btn-primary me-2" id="start-training" data-bs-toggle="modal" data-bs-target="#phishingModal">
+                  <span class="tf-icons ti-lg ti ti-shield me-1"></span> Earn one extra Shield
+                </button>
+                <br><br>
+                <!-- Modal: Start -->
+                <div class="modal fade" id="phishingModal" tabindex="-1" data-bs-backdrop="static" role="dialog" aria-labelledby="phishingModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                          <div class="modal-header">
+                              <h5 class="modal-title" id="phishingModalLabel">Phishing Mikrotraining</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                              <div id="phishing-email" class="tour-step">
+                                  <p><strong>Betreff:</strong> {{ phishing_email.subject }}</p>
+                                  <p><strong>Absender:</strong> {{ phishing_email.sender_name }} &lt;{{ phishing_email.sender_email }}&gt;</p>
+                                  <p><iframe id="templateContent" onload="this.style.height=this.contentDocument.body.scrollHeight + 'px';"></iframe></p>
+                              </div>
+                          </div>
+                          <div class="modal-footer">
+                          </div>
+                      </div>
+                  </div>
+                </div>
+                <!-- Modal: End -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock content %}

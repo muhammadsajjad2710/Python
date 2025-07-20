@@ -1,0 +1,221 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Microtraining{% endblock %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/nouislider/nouislider.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/swiper/swiper.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/shepherd/shepherd.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/jquery/jquery.js' %}"></script>
+<script src="{% static 'vendor/libs/nouislider/nouislider.js' %}"></script>
+<script src="{% static 'vendor/libs/swiper/swiper.js' %}"></script>
+<script src="{% static 'vendor/libs/shepherd/shepherd.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static  'vendor/css/pages/front-page-landing.css' %}">
+<style>
+  #phishingModal .carousel-indicators {
+    list-style: none;
+  }
+  #phishingModal .carousel-indicators li::marker {
+    content: none;
+  }
+</style>
+{% endblock page_css %}
+
+{% block page_js %}
+{{ block.super }}
+<script src="{% static 'js/front-page-landing.js' %}"></script>
+<script>
+  $(document).ready(function() {
+    $('#quizForm').on('submit', function(e) {
+      e.preventDefault();
+      var correctAnswerIndex = $(this).data('correct-answer-index');
+      var selectedAnswer = $(this).find('input[name="answer"]:checked').val();
+      var feedback = $('#feedback');
+
+      // Entferne vorherige Feedback-Stile
+      $(this).find('input[name="answer"]').each(function() {
+        $(this).closest('.form-check').removeClass('form-check-success form-check-danger');
+        $(this).next('label').removeClass('text-success text-danger');
+      });
+
+      feedback.hide();
+
+      if (selectedAnswer === undefined) {
+        feedback.addClass('alert-danger').text('Bitte wähle eine Antwort aus.').show();
+      } else {
+        // Deaktiviere alle Radio-Buttons
+        $(this).find('input[name="answer"]').prop('disabled', true);
+
+        if (selectedAnswer == correctAnswerIndex) {
+          $('#answer' + selectedAnswer).closest('.form-check').addClass('form-check-success');
+          $('#answer' + selectedAnswer).next('label').addClass('text-success');
+          feedback.removeClass('alert-danger').addClass('alert-success').text('Super gemacht, das war Richtig!').show();
+        } else {
+          $('#answer' + selectedAnswer).closest('.form-check').addClass('form-check-danger');
+          $('#answer' + selectedAnswer).next('label').addClass('text-danger');
+          $('#answer' + correctAnswerIndex).closest('.form-check').addClass('form-check-success');
+          $('#answer' + correctAnswerIndex).next('label').addClass('text-success');
+          feedback.removeClass('alert-success').addClass('alert-danger').text('Das war leider Falsch.').show();
+        }
+
+        // Deaktiviere den Submit-Button
+        $(this).find('button[type="submit"]').prop('disabled', true);
+      }
+    });
+
+    $('#modalCarouselControls').on('slide.bs.carousel', function (e) {
+      var $nextControl = $(this).find('.carousel-control-next');
+      var $prevControl = $(this).find('.carousel-control-prev');
+      var $carouselItems = $(this).find('.carousel-item');
+      var totalItems = $carouselItems.length;
+      var currentIndex = $carouselItems.index($carouselItems.filter('.active'));
+
+      // Deaktivieren der 'Next' Schaltfläche, wenn die letzte Folie erreicht ist
+      if (e.to == totalItems - 1) {
+        $nextControl.addClass('d-none');
+      } else {
+        $nextControl.removeClass('d-none');
+      }
+
+      // Deaktivieren der 'Prev' Schaltfläche, wenn die erste Folie erreicht ist
+      if (e.to == 0) {
+        $prevControl.addClass('d-none');
+      } else {
+        $prevControl.removeClass('d-none');
+      }
+    });
+  });
+</script>
+{% endblock page_js %}
+
+
+{% block content %}
+<div data-bs-spy="scroll" class="scrollspy-example">
+  <!-- stats: Start -->
+  <section id="landingFunFacts" class="section-py landing-fun-facts">
+    <div class="container">
+      <div class="row gy-2 pt-lg-3">
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="text-center">
+                <h4 class="mb-1">Woohooo! This was Just a Simulation!</h4>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="text-center">
+                {% if gif_url %}
+                    <img src="{{ gif_url }}" alt="Success GIF">
+                {% else %}
+                    <p>Kein GIF verfügbar.</p>
+                {% endif %}
+                <br><br><br>
+                <h4>+2 <span class="tf-icons ti-lg ti ti-shield me-1"></span></h4>
+                <br><br><br>
+                <button type="button" class="btn btn-xl btn-primary me-2" id="start-training" data-bs-toggle="modal" data-bs-target="#phishingModal">
+                  <span class="tf-icons ti-lg ti ti-shield me-1"></span> Earn one extra Shield
+                </button>
+                <br><br>
+                <!-- Modal: Start -->
+                <div class="modal-onboarding modal fade animate__animated" id="phishingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                  <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content text-center">
+                      <div class="modal-header border-0">
+                      </div>
+                      <div id="modalCarouselControls" class="carousel slide pb-4 mb-2" data-bs-interval="false">
+                        <ol class="carousel-indicators">
+                          <li data-bs-target="#modalCarouselControls" data-bs-slide-to="0" class="active"></li>
+                          <li data-bs-target="#modalCarouselControls" data-bs-slide-to="1"></li>
+                          <li data-bs-target="#modalCarouselControls" data-bs-slide-to="2"></li>
+                        </ol>
+                        <div class="carousel-inner">
+                          <div class="carousel-item active">
+                            <div class="onboarding-media">
+                              <div class="mx-2">
+
+                              </div>
+                            </div>
+                            <div class="onboarding-content">
+                              <h4 class="onboarding-title text-body">{{ microtraining.title }}</h4>
+                              <div class="onboarding-info">{{ microtraining.description }}</div>
+                            </div>
+                          </div>
+                          <div class="carousel-item">
+                            <div class="onboarding-media">
+                              <div class="mx-2">
+
+                              </div>
+                            </div>
+                            <div class="onboarding-content">
+                              <h4 class="onboarding-title text-body">{{ microtraining.title }}</h4>
+                              <div class="onboarding-info">{{ microtraining.content }}</div>
+                            </div>
+                          </div>
+                          <div class="carousel-item">
+                            <div class="onboarding-media">
+                              <div class="mx-2">
+
+                              </div>
+                            </div>
+                            <div class="onboarding-content">
+                              <h4 class="onboarding-title text-body">{{ microtraining.title }}</h4>
+                              <div class="onboarding-info">{{ microtraining.question_text }}</div>
+                              <form id="quizForm" data-correct-answer-index="{{ microtraining.correct_answer_index }}">
+                                <div id="feedback" class="alert" role="alert" style="display: none;"></div>
+                                <div class="mb-3 form-check">
+                                  <input class="form-check-input" type="radio" name="answer" id="answer1" value="1">
+                                  <label class="form-check-label" for="answer1">
+                                    {{ microtraining.answer1 }}
+                                  </label>
+                                </div>
+                                <div class="mb-3 form-check">
+                                  <input class="form-check-input" type="radio" name="answer" id="answer2" value="2">
+                                  <label class="form-check-label" for="answer2">
+                                    {{ microtraining.answer2 }}
+                                  </label>
+                                </div>
+                                <div class="mb-3 form-check">
+                                  <input class="form-check-input" type="radio" name="answer" id="answer3" value="3">
+                                  <label class="form-check-label" for="answer3">
+                                    {{ microtraining.answer3 }}
+                                  </label>
+                                </div>
+                                <div class="text-center">
+                                  <button type="submit" class="btn btn-primary">Antwort einreichen</button>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                        <a class="carousel-control-prev d-none" href="#modalCarouselControls" role="button" data-bs-slide="prev">
+                          <i class="ti ti-chevrons-left me-2"></i><span>Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#modalCarouselControls" role="button" data-bs-slide="next">
+                          <span>Next</span><i class="ti ti-chevrons-right ms-2"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Modal: End -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock content %}

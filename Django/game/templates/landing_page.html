@@ -1,0 +1,277 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Landing Page - Front Pages{% endblock %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/nouislider/nouislider.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/swiper/swiper.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/nouislider/nouislider.js' %}"></script>
+<script src="{% static 'vendor/libs/swiper/swiper.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static  'vendor/css/pages/front-page-landing.css' %}">
+{% endblock page_css %}
+
+{% block page_js %}
+{{ block.super }}
+<script src="{% static 'js/front-page-landing.js' %}"></script>
+{% endblock page_js %}
+
+
+{% block content %}
+<div data-bs-spy="scroll" class="scrollspy-example">
+  <!-- stats: Start -->
+  <section id="landingFunFacts" class="section-py landing-fun-facts">
+    <div class="container">
+      <div class="row align-items-center justify-content-center gy-3">
+        <div class="col-sm-6 col-lg-3">
+          <div class="card border border-label-primary shadow-none">
+            <div class="card-body text-center">
+              <img src="{% static 'img/front-pages/icons/laptop.png' %}" alt="laptop" class="mb-2" />
+              <h5 class="h2 mb-1">{{ request.user.shields }}</h5>
+              <p class="fw-medium mb-0">
+                Shields
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="card border border-label-success shadow-none">
+            <div class="card-body text-center">
+              <img src="{% static 'img/front-pages/icons/user-success.png' %}" alt="laptop" class="mb-2" />
+              <h5 class="h2 mb-1">100%</h5>
+              <p class="fw-medium mb-0">
+                Personal Success Rate
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="card border border-label-info shadow-none">
+            <div class="card-body text-center">
+              <img src="{% static 'img/front-pages/icons/diamond-info.png' %}" alt="laptop" class="mb-2" />
+              <h5 class="h2 mb-1">80%</h5>
+              <p class="fw-medium mb-0">
+                Company Success Rate
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row gy-2 pt-lg-3">
+        <!-- Leaderboard: Start -->
+        <div class="col-xl-4 col-lg-6">
+          <div class="card">
+            <div class="card-header">
+              <div class="text-center">
+                <img src="{% static 'img/front-pages/icons/paper-airplane.png' %}" alt="paper airplane icon" class="mb-4 pb-2" />
+                <h4 class="mb-1">Leaderboard</h4>
+              </div>
+              <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                <li class="nav-item">
+                  <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-lead-me" aria-controls="navs-lead-me" aria-selected="true">Me</button>
+                </li>
+                <li class="nav-item">
+                  <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-lead-mydep" aria-controls="navs-lead-mydep" aria-selected="false">My Department</button>
+                </li>
+                <li class="nav-item">
+                  <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-lead-deps" aria-controls="navs-lead-deps" aria-selected="false">Departments</button>
+                </li>
+              </ul>
+            </div>
+            <div class="card-body p-2">
+                <div class="tab-content">
+                  <div class="tab-pane fade show active" id="navs-lead-me" role="tabpanel">
+
+                      <table class="table table-sm table-hover p-2">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>User</th>
+                            <th>Shields</th>
+                          </tr>
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                          <tr>
+                            <td>1</td>
+                            <td>
+                              <span>
+                                <div class="d-flex align-items-center">
+                                  <div class="avatar avatar-xs me-2">
+                                    <span class="avatar-initial rounded-circle bg-label-secondary">ac</span>
+                                  </div>
+                                  <span>Albert Cook</span>
+                              </div>
+                            </td>
+                            <td>1000 <i class="ti ti-shield text-muted"></i></td>
+                          </tr>
+                          <tr>
+                            <td>2</td>
+                            <td>
+                              <span>
+                                <div class="d-flex align-items-center">
+                                  <div class="avatar avatar-xs me-2">
+                                    <span class="avatar-initial rounded-circle bg-label-secondary">sc</span>
+                                  </div>
+                                  <span>Samuel Chef</span>
+                              </div>
+                            </td>
+                            <td>1000 <i class="ti ti-shield text-muted"></i></td>
+                          </tr>
+                          <tr>
+                            <td>3</td>
+                            <td>
+                              <span>
+                                <div class="d-flex align-items-center">
+                                  <div class="avatar avatar-xs me-2">
+                                    <span class="avatar-initial rounded-circle bg-label-secondary">rb</span>
+                                  </div>
+                                  <span>Roman Bühler</span>
+                              </div>
+                            </td>
+                            <td>1000 <i class="ti ti-shield text-muted"></i></td>
+                          </tr>
+                          <tr>
+                            <td>4</td>
+                            <td>
+                              <span>
+                                <div class="d-flex align-items-center">
+                                  <div class="avatar avatar-xs me-2">
+                                    <span class="avatar-initial rounded-circle bg-label-secondary">hh</span>
+                                  </div>
+                                  <span>Hans Heiri</span>
+                              </div>
+                            </td>
+                            <td>1000 <i class="ti ti-shield text-muted"></i></td>
+                          </tr>
+                          <tr>
+                            <td>5</td>
+                            <td>
+                              <span>
+                                <div class="d-flex align-items-center">
+                                  <div class="avatar avatar-xs me-2">
+                                    <span class="avatar-initial rounded-circle bg-label-secondary">ah</span>
+                                  </div>
+                                  <span>Anna Hasler</span>
+                              </div>
+                            </td>
+                            <td>1000 <i class="ti ti-shield text-muted"></i></td>
+                          </tr>
+                          <tr>
+                            <td>6</td>
+                            <td>
+                              <span>
+                                <div class="d-flex align-items-center">
+                                  <div class="avatar avatar-xs me-2">
+                                    <span class="avatar-initial rounded-circle bg-label-secondary">bf</span>
+                                  </div>
+                                  <span>Benjamin Fischer</span>
+                              </div>
+                            </td>
+                            <td>1000 <i class="ti ti-shield text-muted"></i></td>
+                          </tr>
+                          <tr>
+                            <td>7</td>
+                            <td>
+                              <span>
+                                <div class="d-flex align-items-center text-nowrap">
+                                  <div class="avatar avatar-xs me-2 flex-shrink-0">
+                                    <span class="avatar-initial rounded-circle bg-label-secondary">ir</span>
+                                  </div>
+                                  <span>Inderijan Ratnaathamtamilekopf</span>
+                              </div>
+                            </td>
+                            <td>1000 <i class="ti ti-shield text-muted"></i></td>
+                          </tr>
+                          <tr>
+                            <td>8</td>
+                            <td>
+                              <span>
+                                <div class="d-flex align-items-center">
+                                  <div class="avatar avatar-xs me-2">
+                                    <span class="avatar-initial rounded-circle bg-label-secondary">iw</span>
+                                  </div>
+                                  <span>ike weissenitemehr</span>
+                              </div>
+                            </td>
+                            <td>1000 <i class="ti ti-shield text-muted"></i></td>
+                          </tr>
+                          <tr>
+                            <td>9</td>
+                            <td>
+                              <span>
+                                <div class="d-flex align-items-center">
+                                  <div class="avatar avatar-xs me-2">
+                                    <span class="avatar-initial rounded-circle bg-label-secondary">ag</span>
+                                  </div>
+                                  <span>Angina Geraldine</span>
+                              </div>
+                            </td>
+                            <td>1000 <i class="ti ti-shield text-muted"></i></td>
+                          </tr>
+                          <tr>
+                            <td>10</td>
+                            <td>
+                              <span>
+                                <div class="d-flex align-items-center">
+                                  <div class="avatar avatar-xs me-2">
+                                    <span class="avatar-initial rounded-circle bg-label-secondary">mf</span>
+                                  </div>
+                                  <span>Marco Fischerbettwaren</span>
+                              </div>
+                            </td>
+                            <td>1000 <i class="ti ti-shield text-muted"></i></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                  </div>
+                  <div class="tab-pane fade" id="navs-lead-mydep" role="tabpanel">
+                    <p>
+                      My Department
+                    </p>
+                  </div>
+                  <div class="tab-pane fade" id="navs-lead-deps" role="tabpanel">
+                    <p>
+                      All Departments
+                    </p>
+                  </div>
+                </div>
+            </div>
+          </div>
+        </div>
+        <!-- Leaderboard: End -->
+
+        <!-- Last Simulations: Start -->
+        <div class="col-xl-8 col-lg-6">
+          <div class="card">
+            <div class="card-header">
+              <div class="text-center">
+                <img src="{% static 'img/front-pages/icons/shuttle-rocket.png' %}" alt="shuttle rocket icon" class="mb-4 pb-2" />
+                <h4 class="mb-1">Last Simulations</h4>
+              </div>
+            </div>
+            <div class="card-body">
+              <p>Last simulations ...</p>
+            </div>
+          </div>
+        </div>
+        <!-- Last Simulations: End -->
+      </div>
+    </div>
+  </section>
+  <!-- Stats: End -->
+
+</div>
+{% endblock content %}
