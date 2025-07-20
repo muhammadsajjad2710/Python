@@ -1,0 +1,409 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}User View - Pages{% endblock %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-bs5/datatables.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/animate-css/animate.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/sweetalert2/sweetalert2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/select2/select2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/@form-validation/umd/styles/index.min.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/apex-charts/apex-charts.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/moment/moment.js' %}"></script>
+<script src="{% static 'vendor/libs/datatables-bs5/datatables-bootstrap5.js' %}"></script>
+<script src="{% static 'vendor/libs/sweetalert2/sweetalert2.js' %}"></script>
+<script src="{% static 'vendor/libs/cleavejs/cleave.js' %}"></script>
+<script src="{% static 'vendor/libs/cleavejs/cleave-phone.js' %}"></script>
+<script src="{% static 'vendor/libs/select2/select2.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/umd/bundle/popular.min.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/umd/plugin-bootstrap5/index.min.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/umd/plugin-auto-focus/index.min.js' %}"></script>
+<script src="{% static 'vendor/libs/apex-charts/apexcharts.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/css/pages/page-user-view.css' %}" />
+{% endblock page_css %}
+
+{% block page_js %}
+{{ block.super }}
+<script src="{% static 'js/modal-edit-user.js' %}"></script>
+<script src="{% static 'js/app-user-view.js' %}"></script>
+<script src="{% static 'js/app-user-view-account.js' %}"></script>
+<script>
+  $(document).ready(function() {
+    // Hole die user_id aus dem Kontext
+    var user_id = "{{ userinfo.id }}";  // Benutze Anführungszeichen für die Einbettung in JavaScript
+
+    var statusBadgeObj = {
+      'Failed': '<span data-bs-toggle="tooltip" data-bs-html="true" title="<span>Failed</span>" class="badge badge-center rounded-pill bg-label-danger w-px-30 h-px-30"><i class="ti ti-info-circle ti-sm"></i></span>',
+      'Success': '<span data-bs-toggle="tooltip" data-bs-html="true" title="<span>Success</span>" class="badge badge-center rounded-pill bg-label-success w-px-30 h-px-30"><i class="ti ti-circle-check ti-sm"></i></span>',
+      'In Progress': '<span data-bs-toggle="tooltip" data-bs-html="true" title="<span>In Progress</span>" class="badge badge-center rounded-pill bg-label-secondary w-px-30 h-px-30"><i class="ti ti-clock ti-sm"></i></span>'
+    };
+
+    function calculateShields(row) {
+      var points = 0;
+      if (row.completed_microtraining) {
+          points += 1;
+      }
+      if (row.status === 'Success') {
+          points += 2;
+      }
+      var shields = '<span class="shield-icons">';
+      for (var i = 0; i < 3; i++) {
+          if (i < points) {
+              shields += '<i class="ti ti-shield text-success"></i>'; // Full shield icon
+          } else {
+              shields += '<i class="ti ti-shield text-muted"></i>'; // Empty shield icon
+          }
+      }
+      shields += '</span>';
+      return shields;
+    }
+
+    $('.phishingSimulationsTable').DataTable({
+        "ajax": {
+            "url": "/api/phishing-simulations-data/" + user_id + "/",
+            "dataSrc": "data"
+        },
+        "columns": [
+              {
+                "data": null,
+                "render": function(data, type, row) {
+                    var previewUrl = "{% url 'phishing-preview' 0 %}".replace('0', row.template__id);
+                    return '<a href="' + previewUrl + '" class="text-body" data-bs-toggle="tooltip" title="Preview"><i class="ti ti-eye mx-2 ti-sm"></i></a>';
+                  },
+                "orderable": false,
+                "searchable": false
+            },
+            { "data": "template__name" },
+            {
+              "data": "status",
+              "render": function(data, type, row) {
+                  return statusBadgeObj[data] || data;
+              }
+            },
+            { "data": "sent_at" },
+            { "data": "response_time" },
+            {
+              "data": null,
+              "render": function(data, type, row) {
+                  return calculateShields(row);
+              }
+            }
+        ],
+        "drawCallback": function(settings) {
+          // Initialize Bootstrap tooltips
+          $('[data-bs-toggle="tooltip"]').tooltip();
+        }
+    });
+  });
+</script>
+{% endblock page_js %}
+
+{% block content %}
+<h4 class="py-3 mb-4">
+  <span class="text-muted fw-light">{% translate "User" %} / {% translate "View" %} /</span> {% translate "Account" %}
+</h4>
+{% if messages %}
+{% for message in messages %}
+<div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-warning{% endif %}" role="alert">
+  {{ message }}
+</div>
+{% endfor %}
+{% endif %}
+<div class="row">
+  <!-- User Sidebar -->
+  <div class="col-xl-4 col-lg-5 col-md-5 order-1 order-md-0">
+    <!-- User Card -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="user-avatar-section">
+          <div class=" d-flex align-items-center flex-column">
+            <div class="avatar-initials rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mb-3" style="height: 100px; width: 100px; font-size: 2rem;">
+              {{ userinfo.firstname|slice:":1" }}{{ userinfo.name|slice:":1" }}
+            </div>
+            <div class="user-info text-center">
+              <h4 class="mb-2">{{ userinfo.firstname }} {{ userinfo.name }}</h4>
+              <span class="badge bg-label-secondary mt-1">{{ userinfo.job_title }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-around flex-wrap mt-3 pt-3 pb-4 border-bottom">
+          <div class="d-flex align-items-start me-4 mt-3 gap-2">
+            <span class="badge bg-label-primary p-2 rounded"><i class='ti ti-checkbox ti-shield'></i></span>
+            <div>
+              <p class="mb-0 fw-medium">{{ userinfo.shields }}</p>
+              <small>Shields</small>
+            </div>
+          </div>
+        </div>
+        <p class="mt-4 small text-uppercase text-muted">Details</p>
+        <div class="info-container">
+          <ul class="list-unstyled">
+            <li class="mb-2 pt-1">
+              <span class="fw-medium me-1">Email:</span>
+              <span>{{ userinfo.email }}</span>
+            </li>
+            <li class="mb-2 pt-1">
+              <span class="fw-medium me-1">Status:</span>
+              <span class="badge bg-label-success">Active</span>
+            </li>
+            <li class="mb-2 pt-1">
+              <span class="fw-medium me-1">Job function:</span>
+              <span>{% if userinfo.job_function %}{{ userinfo.job_function.name }}{% else %}Not assigned{% endif %}</span>
+            </li>
+            <li class="mb-2 pt-1">
+              <span class="fw-medium me-1">Language Interface:</span>
+              <span class="badge bg-label-secondary">{{ userinfo.interface_language }}</span>
+            </li>
+            <li class="mb-2 pt-1">
+              <span class="fw-medium me-1">Language Training:</span>
+              {% for language in userinfo.phishing_simulation_languages.all %}
+                <span class="badge bg-label-secondary">{{ language.code }}</span>
+              {% endfor %}
+            </li>
+          </ul>
+          <div class="d-flex justify-content-center">
+            <a href="javascript:;" class="btn btn-primary me-3" data-bs-target="#editUser" data-bs-toggle="modal">Edit</a>
+            <a href="javascript:;" class="btn btn-label-danger suspend-user">Suspended</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /User Card -->
+    <!-- Manager Card -->
+    <div class="card mb-4">
+      <h5 class="card-header">Manager</h5>
+      <div class="card-body">
+        {% if supervisor %}
+        <ul class="ps-3 g-2 my-3">
+          {{ supervisor.firstname }} {{ supervisor.name }}
+          <br>
+          Shields: {{ supervisor.shields }}
+        </ul>
+        <div class="d-grid w-100 mt-4">
+          <a href="{% url 'users-account' supervisor.id %}" class="btn btn-primary">Go to Manager</a>
+        </div>
+        {% else %}
+        <p>No manager assigned.</p>
+        {% endif %}
+      </div>
+    </div>
+    <!-- /Manager Card -->
+    <!-- Plan Card -->
+    <div class="card mb-4">
+      <h5 class="card-header">Statistic</h5>
+      <div class="card-body">
+        <ul class="p-0 m-0">
+          <li class="d-flex mb-3 pb-1">
+            <div class="chart-progress me-3" data-color="success" data-series="64" data-progress_variant="true"></div>
+            <div class="row w-100 align-items-center">
+              <div class="col-9">
+                <div class="me-2">
+                  <h6 class="mb-2">Success</h6>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="d-flex mb-3 pb-1">
+            <div class="chart-progress me-3" data-color="warning" data-series="23" data-progress_variant="true"></div>
+            <div class="row w-100 align-items-center">
+              <div class="col-9">
+                <div class="me-2">
+                  <h6 class="mb-2">Missed</h6>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="d-flex">
+            <div class="chart-progress me-3" data-color="danger" data-series="13" data-progress_variant="true"></div>
+            <div class="row w-100 align-items-center">
+              <div class="col-9">
+                <div class="me-2">
+                  <h6 class="mb-2">Failed</h6>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- /Plan Card -->
+  </div>
+  <!--/ User Sidebar -->
+
+
+  <!-- User Content -->
+  <div class="col-xl-8 col-lg-7 col-md-7 order-0 order-md-1">
+    <!-- User Pills -->
+    <ul class="nav nav-pills flex-column flex-md-row mb-4">
+      <li class="nav-item"><a class="nav-link active" href="javascript:void(0);"><i class="ti ti-user-check ti-xs me-1"></i>Account</a></li>
+      <li class="nav-item"><a class="nav-link" href=""><i class="ti ti-lock ti-xs me-1"></i>Security</a></li>
+      <li class="nav-item"><a class="nav-link" href=""><i class="ti ti-currency-dollar ti-xs me-1"></i>Billing & Plans</a></li>
+      <li class="nav-item"><a class="nav-link" href=""><i class="ti ti-bell ti-xs me-1"></i>Notifications</a></li>
+      <li class="nav-item"><a class="nav-link" href=""><i class="ti ti-link ti-xs me-1"></i>Connections</a></li>
+    </ul>
+    <!--/ User Pills -->
+
+    <!-- Activity Timeline -->
+    <div class="card mb-4">
+      <h5 class="card-header">User Activity Timeline</h5>
+      <div class="card-body pb-0">
+        <ul class="timeline mb-0">
+          {% for simulation in simulations %}
+          <li class="timeline-item timeline-item-transparent">
+              <span class="timeline-point {% if simulation.clicked_link %} timeline-point-danger {% else %} timeline-point-success {% endif %}" ></span>
+              <div class="timeline-event">
+                  <div class="timeline-header mb-1">
+                      <h6 class="mb-0">Simulation: {{ simulation.template.name }} <a href="{% url 'phishing-preview' simulation.template.id %}"><i class="ti ti-eye ti-md"></i></a></h6>
+                      <small class="text-muted">{{ simulation.sent_at|date:"d.m.Y H:i" }}</small>
+                  </div>
+                  <p class="mb-2">Status: {{ simulation.responded|yesno:"Ja,Nein" }}</p>
+                  {% if simulation.responded %}
+                  <p class="mb-2">Antwortzeit: {{ simulation.response_time|date:"d.m.Y H:i" }}</p>
+                  <p class="mb-2">Link geklickt: {{ simulation.clicked_link|yesno:"Ja,Nein" }}</p>
+                  <p class="mb-2">Mikrotraining abgeschlossen: {{ simulation.completed_microtraining|yesno:"Ja,Nein" }}</p>
+                  {% endif %}
+              </div>
+          </li>
+          {% endfor %}
+          <li class="timeline-item timeline-item-transparent border-transparent">
+            <span class="timeline-point timeline-point-success"></span>
+            <div class="timeline-event">
+              <div class="timeline-header mb-1">
+                <h6 class="mb-0">Design Review</h6>
+                <small class="text-muted">5 days Ago</small>
+              </div>
+              <p class="mb-0">Weekly review of freshly prepared design for our new app.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- /Activity Timeline -->
+
+    <!-- Phishing table -->
+    <div class="card mb-4">
+      <div class="table-responsive mb-3">
+        <table class="table phishingSimulationsTable border-top">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Template Name</th>
+              <th>Status</th>
+              <th>Sent At</th>
+              <th>Response Time</th>
+              <th>Shields</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+    <!-- /Phishing table -->
+  </div>
+  <!--/ User Content -->
+</div>
+
+<!-- Modal -->
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUser" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-simple modal-edit-user">
+    <div class="modal-content p-3 p-md-5">
+      <div class="modal-body">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="text-center mb-4">
+          <h3 class="mb-2">Edit User Information</h3>
+          <p class="text-muted">Updating user details will receive a privacy audit.</p>
+        </div>
+        <form id="editUserFormNOVALIDATE" class="row g-3" action="{% url 'users-account' userinfo.id %}" method="post">
+          {% csrf_token %}
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="modalEditUserFirstName">First Name</label>
+            <input type="text" id="modalEditUserFirstName" name="modalEditUserFirstName" class="form-control" value="{{ userinfo.firstname }}" />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="modalEditUserLastName">Last Name</label>
+            <input type="text" id="modalEditUserLastName" name="modalEditUserLastName" class="form-control" value="{{ userinfo.name }}" />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="modalEditUserEmail">Email</label>
+            <input type="text" id="modalEditUserEmail" name="modalEditUserEmail" class="form-control" value="{{ userinfo.email }}" />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="modalEditUserStatus">Status</label>
+            <select id="modalEditUserStatus" name="modalEditUserStatus" class="select2 form-select" aria-label="Default select example">
+              <option selected>Status</option>
+              <option value="1">Active</option>
+              <option value="2">Inactive</option>
+              <option value="3">Suspended</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="modalEditUserPhone">Phone Number</label>
+            <input type="text" id="modalEditUserPhone" name="modalEditUserPhone" class="form-control" value="{{ userinfo.phone_number }}" placeholder="202 555 0111" />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="modalEditUserInterfaceLanguage">Interface Language</label>
+            <select id="modalEditUserInterfaceLanguage" name="modalEditUserInterfaceLanguage" class="select2 form-select">
+              <option value="">Select</option>
+              <option value="en" {% if userinfo.interface_language == 'en' %}selected{% endif %}>English</option>
+              <option value="de" {% if userinfo.interface_language == 'de' %}selected{% endif %}>German</option>
+              <option value="fr" {% if userinfo.interface_language == 'fr' %}selected{% endif %}>French</option>
+              <!-- Weitere Sprachen hier hinzufügen -->
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="modalEditUserPhishingLanguages">Phishing Simulation Languages</label>
+            <select id="modalEditUserPhishingLanguages" name="modalEditUserPhishingLanguages" class="select2 form-select" multiple>
+              {% for language in languages %}
+                <option value="{{ language.code }}" {% if language in userinfo.phishing_simulation_languages.all %}selected{% endif %}>{{ language.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="modalEditUserJobTitle">Job Title</label>
+            <input type="text" id="modalEditUserJobTitle" name="modalEditUserJobTitle" class="form-control" value="{{ userinfo.job_title }}" />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="modalEditUserJobFunction">Job Function</label>
+            <select id="modalEditUserJobFunction" name="modalEditUserJobFunction" class="select2 form-select">
+              <option value="">Select</option>
+              {% for job_function in job_functions %}
+                <option value="{{ job_function.id }}" {% if userinfo.job_function and job_function.id == userinfo.job_function.id %}selected{% endif %}>{{ job_function.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="modalEditUserSupervisor">Supervisor</label>
+            <select id="modalEditUserSupervisor" name="modalEditUserSupervisor" class="select2 form-select">
+              <option value="">Select</option>
+              {% for user in users %}
+                <option value="{{ user.id }}" {% if userinfo.supervisor and user.id == userinfo.supervisor.id %}selected{% endif %}>{{ user.name }} {{ user.firstname }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12 text-center">
+            <button type="submit" class="btn btn-primary me-sm-3 me-1">Submit</button>
+            <button type="reset" class="btn btn-label-secondary" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!--/ Edit User Modal -->
+
+<!-- /Modal -->
+{% endblock %}
