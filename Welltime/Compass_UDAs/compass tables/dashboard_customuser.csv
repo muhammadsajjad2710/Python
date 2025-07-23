@@ -1,4 +1,0 @@
-id,password,last_login,is_superuser,username,last_name,email,is_staff,is_active,date_joined,user_type,first_name
-1,pbkdf2_sha256$600000$8YYojsveFl0OJOXqII6elX$i9t4ivMCRuVchVQICUqMDYGPjueRi7O1hV/+4zhkxHs=,2023-11-24 21:07:49.864229,1,rghauri,,rghauri@gmail.com,1,1,2023-11-24 21:07:23.894410,1,
-2,pbkdf2_sha256$600000$YyHLo1H1oxyt6eaLHcVLFv$xK/bKvzry0yTKbNNhXcm0BsNgacqF3x/VcNaB9phdrU=,2024-03-18 16:55:54.443908,1,imran,khan,imran@welltime.co.uk,1,1,2023-11-25 10:45:53.313246,1,imran
-3,pbkdf2_sha256$600000$VmTvTiyO1gBYbCYB6yxetK$A9wMK91xogh5EIHDG3YN6CvsL5dUB3AKHSZ5Hx1Yovc=,2024-05-02 15:03:13.265947,1,sajjad,,sajjad@gmail.com,1,1,2024-03-19 07:07:51.004882,1,
